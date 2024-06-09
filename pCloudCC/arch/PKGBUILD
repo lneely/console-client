@@ -1,0 +1,33 @@
+pkgname=pcloudcc
+pkgver=20240609
+pkgrel=1
+epoch=0
+pkgdesc="pcloudcc is a simple linux console client for pCloud cloud storage."
+arch=('x86_64')
+url="https://github.com/lneely/console-client"
+license=(BSD-3-Clause)
+makedepends=(cmake)
+depends=(zlib boost fuse2)
+
+source=("$pkgname-$pkgver.tar.gz::https://github.com/lneely/console-client/archive/refs/tags/20240609.tar.gz")
+sha256sums=('2f3d1e272056bf9dda4540ef5c351405ac72ebf4329f55ac1443a4751058a21a')
+
+build() {
+    pushd "console-client-$pkgver/pCloudCC"
+    pushd lib/pclsync
+    make fs
+    popd
+    pushd lib/mbedtls
+    cmake .
+    make
+    popd
+    cmake .
+    make
+}
+
+package() {
+    cd "console-client-$pkgver/pCloudCC"
+    make DESTDIR="$pkgdir/" install
+}
+
+

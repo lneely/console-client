@@ -10,3 +10,8 @@
 /pCloudCC/cmake_install.cmake
 /pCloudCC/*.so
 /pCloudCC/pcloudcc
+/pCloudCC/arch/*.log
+/pCloudCC/arch/*.zst
+/pCloudCC/arch/*.gz
+/pCloudCC/install_manifest.txt
+/pCloudCC/*.zst
