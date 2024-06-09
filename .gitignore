@@ -2,3 +2,11 @@
 *.a
 /pCloudCC/lib/pclsync/.cache/
 /pCloudCC/lib/pclsync/compile_commands.json
+/pCloudCC/lib/mbedtls/Makefile
+/pCloudCC/lib/mbedtls/library/Makefile
+/pCloudCC/CMakeCache.txt
+/pCloudCC/CMakeFiles/
+/pCloudCC/Makefile
+/pCloudCC/cmake_install.cmake
+/pCloudCC/*.so
+/pCloudCC/pcloudcc
