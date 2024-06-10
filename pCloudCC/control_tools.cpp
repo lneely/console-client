@@ -37,7 +37,8 @@ int start_crypto(const char * pass) {
     std::cout << "Start Crypto failed. return is " << ret<< " and message is "<<errm << std::endl;
   else 
     std::cout << "Crypto started. "<< std::endl;
-  free(errm);  
+  free(errm);
+  return ret;  
 }
 int stop_crypto(){
   int ret;
@@ -47,6 +48,7 @@ int stop_crypto(){
   else 
     std::cout << "Crypto Stopped. "<< std::endl;
   free(errm);  
+  return ret;
 }
 int finalize(){
    int ret;
@@ -57,6 +59,7 @@ int finalize(){
     std::cout << "Exiting ..."<< std::endl;
   
   free(errm);  
+  return ret;
 }
 void process_commands()
 {
