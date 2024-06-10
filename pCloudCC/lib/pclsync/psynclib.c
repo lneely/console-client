@@ -2866,7 +2866,7 @@ char* get_pc_name() {
 }
 /***********************************************************************************************************************************************/
 void psync_async_delete_sync(void* ptr) {
-  psync_syncid_t syncId = (psync_syncid_t)ptr;
+  psync_syncid_t syncId = *(int *)(psync_syncid_t *)ptr;
   int res;
 
   res = psync_delete_sync(syncId);
@@ -2879,7 +2879,7 @@ void psync_async_delete_sync(void* ptr) {
 }
 /***********************************************************************************************************************************************/
 void psync_async_ui_callback(void* ptr) {
-  int eventId = (int)ptr;
+  int eventId = *(int *)ptr;
   time_t currTime = psync_time();
 
   if (((currTime - lastBupDelEventTime) > bupNotifDelay) || (lastBupDelEventTime == 0)) {
