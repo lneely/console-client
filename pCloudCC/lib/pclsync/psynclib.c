@@ -2320,7 +2320,7 @@ void psync_cache_links_all()
 	  cache_links_all();
 	}
 	else
-		debug(D_WARNING, "refreshing link too early %u", (unsigned)psync_current_time - links_last_refresh_time);
+		debug(D_WARNING, "refreshing link too early %ld", (unsigned)psync_current_time - links_last_refresh_time);
 }
 
 preciever_list_t* psync_list_email_with_access(unsigned long long linkid, char** err)
@@ -2463,7 +2463,7 @@ int psync_get_promo(char **url, uint64_t *width, uint64_t *height) {
   }
 
   *width = psync_find_result(res, "width", PARAM_NUM)->num;
-  debug(D_NOTICE, "Promo window Width: [%llu]", *width);
+  debug(D_NOTICE, "Promo window Width: [%lu]", *width);
 
 
   if (!psync_find_result(res, "height", PARAM_NUM)->num) {
@@ -2474,7 +2474,7 @@ int psync_get_promo(char **url, uint64_t *width, uint64_t *height) {
   }
 
   *height = psync_find_result(res, "height", PARAM_NUM)->num;
-  debug(D_NOTICE, "Promo window Height: [%llu]", *height);
+  debug(D_NOTICE, "Promo window Height: [%lu]", *height);
 
   psync_free(res);
 
@@ -2768,7 +2768,7 @@ int psync_delete_backup(psync_syncid_t syncId,
   row = psync_sql_fetch_rowint(sqlRes);
 
   if (unlikely(!row)) {
-    debug(D_ERROR, "Failed to find folder id for syncId: [%lld]", syncId);
+    debug(D_ERROR, "Failed to find folder id for syncId: [%u]", syncId);
     psync_sql_free_result(sqlRes);
 
     res = -1;
@@ -2925,7 +2925,7 @@ int psync_delete_sync_by_folderid(psync_folderid_t fId) {
 int psync_delete_backup_device(psync_folderid_t fId) {
   psync_folderid_t bFId;
 
-  debug(D_NOTICE, "Check if the local device was stopped. Id: [%lld]", fId);
+  debug(D_NOTICE, "Check if the local device was stopped. Id: [%lu]", fId);
 
   bFId = psync_sql_cellint("SELECT value FROM setting WHERE id='BackupRootFoId'", 0);
 
@@ -2937,7 +2937,7 @@ int psync_delete_backup_device(psync_folderid_t fId) {
     psync_sql_commit_transaction();
   }
   else {
-    debug(D_NOTICE, "Stop for different device. Id: [%lld]", bFId);
+    debug(D_NOTICE, "Stop for different device. Id: [%lu]", bFId);
   }
 
   return 1;

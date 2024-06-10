@@ -468,6 +468,6 @@ void psync_send_data_event(event_data_struct* data) {
 }
 /**********************************************************************************************/
 void psync_data_event_test(int eventid, char* str1, char* str2, uint64_t uint1, uint64_t uint2) {
-  debug(D_NOTICE, "Test Data event callback. eventid [%d]. String1: [%s], String2: [%s], uInt1: [%ul] uInt2: [%ul]", eventid, str1, str2, uint1, uint2);
+  debug(D_NOTICE, "Test Data event callback. eventid [%d]. String1: [%s], String2: [%s], uInt1: [%lu] uInt2: [%lu]", eventid, str1, str2, uint1, uint2);
 }
 /**********************************************************************************************/

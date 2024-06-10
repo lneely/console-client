@@ -193,7 +193,7 @@ int create_backend_event(const char*  binapi,
     }
 
     if (paramsLocal[i].paramtype == 1) {
-      debug(D_NOTICE, "%d: Number Param: [%s] - [%d]", i, paramsLocal[i].paramname, paramsLocal[i].num);
+      debug(D_NOTICE, "%d: Number Param: [%s] - [%lu]", i, paramsLocal[i].paramname, paramsLocal[i].num);
       continue;
     }
   }
@@ -505,7 +505,7 @@ int set_be_file_dates(uint64_t fileid, time_t ctime, time_t mtime) {
   char msgErr[1024];
   binresult* retData;
 
-  debug(D_NOTICE, "Update file date in the backend. FileId: [%lld], ctime: [%lld], mtime: [%lld]", fileid, ctime, mtime);
+  debug(D_NOTICE, "Update file date in the backend. FileId: [%lu], ctime: [%lu], mtime: [%lu]", fileid, ctime, mtime);
 
   eventParams optionalParams = {
     0
