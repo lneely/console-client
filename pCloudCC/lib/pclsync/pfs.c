@@ -3395,7 +3395,7 @@ static char is_fuse3_installed_on_system()
   char output[1024];
   memset(output, 0, sizeof(output));
 
-  char* o = fgets(output, sizeof(output), pipe);
+  fgets(output, sizeof(output), pipe);
 
   pclose(pipe);
   size_t outlen = strlen(output);

@@ -1727,7 +1727,6 @@ int check_new_version_on_us_socket(binresult **pres, const char *os, unsigned lo
 }
 
 psync_new_version_t *psync_check_new_version(const char *os, unsigned long currentversion){
-  binparam params[]={P_STR("os", os), P_NUM("version", currentversion)};
   psync_new_version_t *ver;
   binresult *res;
   int ret;

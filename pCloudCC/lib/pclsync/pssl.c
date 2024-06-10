@@ -31,6 +31,8 @@
 #include <string.h>
 #include <stddef.h>
 
+static pthread_mutex_t rsa_decr_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 static void psync_ssl_free_psync_encrypted_data_t(psync_encrypted_data_t e){
   psync_ssl_memclean(e->data, e->datalen);
   psync_locked_free(e);

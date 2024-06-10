@@ -199,7 +199,6 @@ char *generate_device_id(){
 int check_active_subscribtion(const binresult *res){
   const binresult *sub;
   char *status;
-  int subscnt,i;
   sub = psync_check_result(res, "lastsubscription", PARAM_HASH);
   if (sub)
   {
