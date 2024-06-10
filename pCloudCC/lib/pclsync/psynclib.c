@@ -2585,7 +2585,7 @@ int psync_is_folder_syncable(char*  localPath,
 
   //Check if folder is not a child of an igrnored folder
   ignorePaths = psync_setting_get_string(_PS(ignorepaths));
-  parse_os_path(ignorePaths, &folders, DELIM_SEMICOLON, 0);
+  parse_os_path(ignorePaths, &folders, (char *)DELIM_SEMICOLON, 0);
 
   for (i = 0; i < folders.cnt; i++) {
     debug(D_NOTICE, "Check ignored folder: [%s]=[%s]", folders.folders[i], localPath);
@@ -2686,7 +2686,7 @@ int psync_create_backup(char*  path,
     bFId = create_bup_mach_folder(errMsg);
   }
 
-  parse_os_path(path, &folders, DELIM_DIR, 1);
+  parse_os_path(path, &folders, (char *)DELIM_DIR, 1);
 
   if (folders.cnt > 1) {
     oParCnt = 1;
@@ -2867,7 +2867,7 @@ char* get_pc_name() {
 }
 /***********************************************************************************************************************************************/
 void psync_async_delete_sync(void* ptr) {
-  psync_syncid_t syncId = (psync_syncid_t*)ptr;
+  psync_syncid_t syncId = (psync_syncid_t)ptr;
   int res;
 
   res = psync_delete_sync(syncId);
@@ -2880,7 +2880,7 @@ void psync_async_delete_sync(void* ptr) {
 }
 /***********************************************************************************************************************************************/
 void psync_async_ui_callback(void* ptr) {
-  int eventId = (int*)ptr;
+  int eventId = (int)ptr;
   time_t currTime = psync_time();
 
   if (((currTime - lastBupDelEventTime) > bupNotifDelay) || (lastBupDelEventTime == 0)) {
@@ -2896,8 +2896,8 @@ int psync_delete_sync_by_folderid(psync_folderid_t fId) {
   psync_sql_res* sqlRes;
   psync_uint_row row;
 
-  psync_syncid_t* syncId;
-  psync_syncid_t* syncIdT;
+  psync_syncid_t *syncId;
+  psync_syncid_t *syncIdT;
 
   sqlRes = psync_sql_query_nolock("SELECT id FROM syncfolder WHERE folderid = ?");
   psync_sql_bind_uint(sqlRes, 1, fId);
@@ -2910,7 +2910,8 @@ int psync_delete_sync_by_folderid(psync_folderid_t fId) {
     return -1;
   }
 
-  syncId = row[0];
+  // XXX: results in truncation (uint64 -> uint)
+  syncId = (psync_syncid_t *)row[0];
   
   psync_sql_free_result(sqlRes);
 

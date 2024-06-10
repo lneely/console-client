@@ -257,7 +257,7 @@ static psync_socket *get_connected_socket(){
   const binresult *cres;
   psync_sql_res *q;
   uint64_t result, userid, luserid, locationid;
-  int saveauth, isbusiness, cryptosetup, digest, lid, isFirstLogin, intRes;
+  int saveauth, isbusiness, cryptosetup, digest, lid, isFirstLogin;
 
   digest=1;
   psync_free(psync_my_2fa_token);
@@ -688,7 +688,7 @@ static psync_socket *get_connected_socket(){
           P_STR(EPARAM_MAC, macAddr)
         }
       };
-      intRes = create_backend_event(
+      create_backend_event(
         apiserver,
         INST_EVENT_CATEG,
         INST_EVENT_FLOGIN,
@@ -697,7 +697,7 @@ static psync_socket *get_connected_socket(){
         P_OS_ID,
         rawtime,
         &params,
-        res);
+        (char **)res); // TODO: dubious cast, verify
     }
     else {
       debug(D_NOTICE, "Not a first login. Run sync event.");

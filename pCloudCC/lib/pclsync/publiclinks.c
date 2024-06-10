@@ -672,6 +672,35 @@ int do_psync_delete_link(int64_t linkid, char **err /*OUT*/) {
   return 0;
 }
 
+int process_bres(const char* cmd, binresult *bres, psync_socket *api, char **err)
+{
+	const char *errorret;
+	int result;
+	if (likely(bres))
+		psync_apipool_release(api);
+	else {
+		psync_apipool_release_bad(api);
+		debug(D_WARNING, "Send command returned in valid result.\n");
+		*err = psync_strndup("Connection error.", 17);
+		return -2;
+	}
+	result = psync_find_result(bres, "result", PARAM_NUM)->num;
+	if (unlikely(result)) {
+		errorret = psync_find_result(bres, "error", PARAM_STR)->str;
+		*err = psync_strndup(errorret, strlen(errorret));
+		debug(D_WARNING, "command %s returned error code %u", cmd, (unsigned)result);
+		psync_process_api_error(result);
+		if (psync_handle_api_result(result) == PSYNC_NET_TEMPFAIL)
+			return -result;
+		else {
+			*err = psync_strndup("Connection error.", 17);
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
 int do_psync_change_link(unsigned long long linkid, unsigned long long expire, int delete_expire,
   const char* linkpassword, int delete_password, unsigned long long maxtraffic, unsigned long long maxdownloads,
   int enableuploadforeveryone, int enableuploadforchosenusers, int disableupload,char** err)
@@ -1475,31 +1504,3 @@ int do_change_bookmark(const char* code, int locationid, const char* name, const
   return result;
 }
 
-int process_bres(const char* cmd, binresult *bres, psync_socket *api, char **err)
-{
-	const char *errorret;
-	int result;
-	if (likely(bres))
-		psync_apipool_release(api);
-	else {
-		psync_apipool_release_bad(api);
-		debug(D_WARNING, "Send command returned in valid result.\n");
-		*err = psync_strndup("Connection error.", 17);
-		return -2;
-	}
-	result = psync_find_result(bres, "result", PARAM_NUM)->num;
-	if (unlikely(result)) {
-		errorret = psync_find_result(bres, "error", PARAM_STR)->str;
-		*err = psync_strndup(errorret, strlen(errorret));
-		debug(D_WARNING, "command %s returned error code %u", cmd, (unsigned)result);
-		psync_process_api_error(result);
-		if (psync_handle_api_result(result) == PSYNC_NET_TEMPFAIL)
-			return -result;
-		else {
-			*err = psync_strndup("Connection error.", 17);
-			return -1;
-		}
-	}
-
-	return 0;
-}
