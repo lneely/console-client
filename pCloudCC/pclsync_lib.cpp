@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013-2015 pCloud Ltd.
  *  All rights reserved.
- * 
+ *
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
  *      * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  *      * Neither the name of pCloud Ltd nor the
  *        names of its contributors may be used to endorse or promote products
  *        derived from this software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -43,8 +43,11 @@ namespace cc  = console_client;
 namespace clib  = cc::clibrary;
 
 clib::pclsync_lib& clib::pclsync_lib::get_lib(){
+  fprintf(stderr, "DEBUG: in %s\n", __func__);
   static clib::pclsync_lib g_lib;
-  return g_lib;}
+  fprintf(stderr, "DEBUG: here 0\n");
+  return g_lib;
+}
 
 static std::string exec(const char* cmd) {
     FILE* pipe=popen(cmd, "r");
@@ -88,7 +91,7 @@ void clib::pclsync_lib::do_get_pass_from_console(std::string& password)
   std::cout << "Please, enter password" << std::endl;
   getline(std::cin, password);
   tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-#else  
+#else
   HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
   DWORD modeoff;
   DWORD modeon;
@@ -123,7 +126,7 @@ void event_handler(psync_eventtype_t event, psync_eventdata_t eventdata){
     std::cout <<"event" << event << std::endl;
 }
 
-static int lib_setup_cripto(){ 
+static int lib_setup_cripto(){
   int ret = 0;
   ret = psync_crypto_issetup();
   if (ret) {
@@ -170,10 +173,10 @@ static char const * status2string (uint32_t status){
 static void status_change(pstatus_t* status) {
   static int cryptocheck=0;
   static int mount_set=0;
-  
+
   char *err;
   err = (char*)malloc(1024);
-  
+
   std::cout << "Down: " <<  status->downloadstr << "| Up: " << status->uploadstr <<", status is " << status2string(status->status) << std::endl;
   *clib::pclsync_lib::get_lib().status_ = *status;
   if (status->status==PSTATUS_LOGIN_REQUIRED){
@@ -204,7 +207,7 @@ static void status_change(pstatus_t* status) {
       std::cout << "registered, logging in" << std::endl;
       psync_set_user_pass(clib::pclsync_lib::get_lib().get_username().c_str(), clib::pclsync_lib::get_lib().get_password().c_str(), (int) clib::pclsync_lib::get_lib().save_pass_);
     }
-      
+
     }
   }
   if (status->status==PSTATUS_READY || status->status==PSTATUS_UPLOADING || status->status==PSTATUS_DOWNLOADING || status->status==PSTATUS_DOWNLOADINGANDUPLOADING){
@@ -226,7 +229,9 @@ int clib::pclsync_lib::statrt_crypto (const char* pass, void * rep) {
   return lib_setup_cripto();
 }
 int clib::pclsync_lib::stop_crypto (const char* path, void * rep) {
+  fprintf(stderr, "DEBUG: in clib::pclsync_lib::%s\n", __func__);
   psync_crypto_stop();
+  fprintf(stderr, "DEBUG: here 0\n");
   get_lib().crypto_on_ = false;
 }
 int clib::pclsync_lib::finalize (const char* path, void * rep) {
@@ -237,7 +242,7 @@ int clib::pclsync_lib::list_sync_folders (const char* path, void * rep) {
   psync_folder_list_t * folders = psync_get_sync_list();
   rep =psync_malloc(sizeof(folders));
   memcpy(rep, folders, sizeof(folders));
-  
+
 }
 static const std::string client_name = "pCloud CC v3.0.0";
 int clib::pclsync_lib::init()//std::string& username, std::string& password, std::string* crypto_pass, int setup_crypto, int usesrypto_userpass)
@@ -249,20 +254,20 @@ int clib::pclsync_lib::init()//std::string& username, std::string& password, std
 
   if (setup_crypto_ && crypto_pass_.empty() )
     return 3;
- 
-  
+
+
   if (psync_init()){
-    std::cout <<"init failed\n"; 
+    std::cout <<"init failed\n";
     return 1;
   }
-  
+
    was_init_ = true;
    if (!get_mount().empty())
     psync_set_string_setting("fsroot",get_mount().c_str());
-  
+
 // _tunnel  = psync_ssl_tunnel_start("127.0.0.1", 9443, "62.210.116.50", 443);
-   
-  
+
+
   int isfsautostart = psync_get_bool_setting("autostartfs");
 
   psync_start_sync(status_change, event_handler);
@@ -277,12 +282,12 @@ int clib::pclsync_lib::init()//std::string& username, std::string& password, std
     }
     psync_free(username_old);
   }
-  
+
   psync_add_overlay_callback(20,&clib::pclsync_lib::statrt_crypto);
   psync_add_overlay_callback(21,&clib::pclsync_lib::stop_crypto);
   psync_add_overlay_callback(22,&clib::pclsync_lib::finalize);
   psync_add_overlay_callback(23,&clib::pclsync_lib::list_sync_folders);
-  
+
   return 0;
 }
 

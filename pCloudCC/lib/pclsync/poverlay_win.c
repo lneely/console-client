@@ -124,6 +124,7 @@ void overlay_main_loop(VOID)
 
 void instance_thread(LPVOID lpvParam)
 {
+  fprintf(stderr, "DEBUG: in %s\n", __func__);
   DWORD cbBytesRead = 0, cbWritten = 0;
   BOOL fSuccess = FALSE;
   HANDLE hPipe = NULL;
@@ -146,15 +147,15 @@ void instance_thread(LPVOID lpvParam)
     do
     {
       fSuccess = ReadFile(
-        hPipe,    // pipe handle 
-        chBuf,    // buffer to receive reply 
-        POVERLAY_BUFSIZE,  // size of buffer 
-        &cbBytesRead,  // number of bytes read 
-        NULL);    // not overlapped 
+        hPipe,    // pipe handle
+        chBuf,    // buffer to receive reply
+        POVERLAY_BUFSIZE,  // size of buffer
+        &cbBytesRead,  // number of bytes read
+        NULL);    // not overlapped
 
       if (!fSuccess && GetLastError() != ERROR_MORE_DATA)
         break;
-    } while (!fSuccess);  // repeat loop if ERROR_MORE_DATA 
+    } while (!fSuccess);  // repeat loop if ERROR_MORE_DATA
 
     if (!fSuccess || cbBytesRead == 0)
     {

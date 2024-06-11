@@ -69,7 +69,7 @@
 #include "ptools.h"
 #include "papi.h"
 
-//Variable containing UNIX time of the last backup file deleted event 
+//Variable containing UNIX time of the last backup file deleted event
 time_t lastBupDelEventTime = 0;
 time_t bupNotifDelay = 300;
 
@@ -177,6 +177,7 @@ void psync_set_os_string(const char *str){
 }
 
 static void psync_stop_crypto_on_sleep(){
+  fprintf(stderr, "DEBUG: in %s\n", __func__);
   if (psync_setting_get_bool(_PS(sleepstopcrypto)) && psync_crypto_isstarted()){
     psync_cloud_crypto_stop();
     debug(D_NOTICE, "stopped crypto due to sleep");
@@ -2042,6 +2043,7 @@ int psync_crypto_start(const char *password){
 }
 
 int psync_crypto_stop(){
+  fprintf(stderr, "DEBUG: %s\n", __func__);
   return psync_cloud_crypto_stop();
 }
 
@@ -2529,7 +2531,7 @@ int psync_send_publink(const char *code, const char *mail, const char *message, 
 	return psync_run_command("sendpublink", params, err);
 }
 /***********************************************************************************************************************************************/
-int psync_is_folder_syncable(char*  localPath, 
+int psync_is_folder_syncable(char*  localPath,
                              char** errMsg) {
   psync_sql_res* sql;
   psync_str_row  srow;
@@ -2655,7 +2657,7 @@ psync_folderid_t create_bup_mach_folder(char** msgErr) {
   return rootFolIdObj->num;
 }
 /***********************************************************************************************************************************************/
-int psync_create_backup(char*  path, 
+int psync_create_backup(char*  path,
                         char** errMsg) {
   psync_folderid_t bFId;
   psync_syncid_t   syncFId;
@@ -2778,7 +2780,7 @@ int psync_delete_backup(psync_syncid_t syncId,
 
     psync_sql_free_result(sqlRes);
   }
- 
+
   if(res == 0) {
     eventParams reqPar = {
       2, //Number of parameters we are passing below.
@@ -2808,7 +2810,7 @@ int psync_delete_backup(psync_syncid_t syncId,
   }
 
   debug(D_NOTICE, "Stop sync result: [%d].", res);
-  
+
   return res;
 }
 /***********************************************************************************************************************************************/
@@ -2911,7 +2913,7 @@ int psync_delete_sync_by_folderid(psync_folderid_t fId) {
 
   // XXX: results in truncation (uint64 -> uint)
   syncId = (psync_syncid_t *)row[0];
-  
+
   psync_sql_free_result(sqlRes);
 
   syncIdT = psync_new(psync_syncid_t);
@@ -2945,7 +2947,7 @@ int psync_delete_backup_device(psync_folderid_t fId) {
 /***********************************************************************************************************************************************/
 void psync_send_backup_del_event(psync_fileorfolderid_t remoteFId) {
   time_t currTime = psync_time();
-  
+
   if (((currTime - lastBupDelEventTime) > bupNotifDelay) || (lastBupDelEventTime == 0)) {
     if (remoteFId == 0) {
       psync_send_eventid(PEVENT_BKUP_F_DEL_NOTSYNCED);

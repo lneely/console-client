@@ -105,8 +105,7 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , char
 
   #if defined(P_OS_MACOS)
   if ( (fd = socket ( AF_INET , SOCK_STREAM , 0 )) == - 1 ) {
-    if (out)
-      *out = strndup ( "Unable to create INET socket" , 28 );
+    *out = strndup ( "Unable to create INET socket" , 28 );
     *ret = - 1 ;
     return - 1 ;
   }
@@ -116,15 +115,13 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , char
   addr. sin_addr . s_addr = htonl ( INADDR_LOOPBACK );
   addr. sin_port = htons ( clport );
   if ( connect (fd, ( struct sockaddr *)&addr, sizeof ( struct sockaddr )) == - 1 ) {
-    if (out)
-      *out = strndup ( "Unable to connect to INET socket" , 32 );
+    *out = strndup ( "Unable to connect to INET socket" , 32 );
     *ret = - 2 ;
     return - 2 ;
   }
   #else
   if ( (fd = socket(AF_UNIX, SOCK_STREAM, 0 )) == - 1 ) {
-    if (out)
-      *out = (void *)strndup( "Unable to create UNIX socket" , 27 );
+    *out = (void *)strndup( "Unable to create UNIX socket" , 27 );
     *ret = - 3 ;
     return - 3 ;
    }
@@ -133,8 +130,7 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , char
   strncpy(addr.sun_path, clsoc, sizeof (addr.sun_path)- 1 );
 
   if (connect(fd, ( struct sockaddr*)&addr,SUN_LEN(&addr)) == - 1 ) {
-    if (out)
-     *out = (void *)strndup( "Unable to connect to UNIX socket" , 32 );
+    *out = (void *)strndup( "Unable to connect to UNIX socket" , 32 );
     *ret = - 4 ;
     return - 4 ;
   }
@@ -152,8 +148,7 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , char
   }
   debug ( D_NOTICE , "QueryState bytes send[%d]\n" , bytes_writen);
   if (bytes_writen != mes-> length ) {
-    if (out)
-      *out = strndup ( "Communication error" , 19 );
+    *out = strndup ( "Communication error" , 19 );
     close(fd);
     *ret = - 5 ;
     return - 5 ;
@@ -175,8 +170,7 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , char
 
 
   *ret = rep-> type ;
-  if (out)
-    *out = strndup (rep-> value , rep-> length - sizeof ( message ));
+  *out = strndup (rep-> value , rep-> length - sizeof ( message ));
 
   close(fd);
 

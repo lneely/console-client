@@ -90,59 +90,72 @@ void psync_start_overlay_callbacks(){
   callbacks_running = 1;
 }
 
-void get_answer_to_request(message *request, message *replay)
+void get_answer_to_request(message *request, message *reply)
 {
+  fprintf(stderr, "DEBUG: in %s\n", __func__);
   psync_path_status_t stat=PSYNC_PATH_STATUS_NOT_OURS;
-  memcpy(replay->value, "Ok.", 4);
-  replay->length=sizeof(message)+4;
-  //debug(D_NOTICE, "Client Request type [%u] len [%lu] string: [%s]", request->type, request->length, request->value);
+  fprintf(stderr, "DEBUG: here 0\n");
+  memcpy(reply->value, "Ok.", 4);
+  fprintf(stderr, "DEBUG: here 1\n");
+  reply->length=sizeof(message)+4;
+  debug(D_NOTICE, "Client Request type [%u] len [%lu] string: [%s]", request->type, request->length, request->value);
+  fprintf(stderr, "DEBUG: here 2\n");
   if (request->type < 20 ) {
+    fprintf(stderr, "DEBUG: here 2.1\n");
     if (overlays_running)
       stat=psync_path_status_get(request->value);
     switch (psync_path_status_get_status(stat)) {
       case PSYNC_PATH_STATUS_IN_SYNC:
-        replay->type=10;
+        reply->type=10;
         break;
       case PSYNC_PATH_STATUS_IN_PROG:
-        replay->type=12;
+        reply->type=12;
         break;
       case PSYNC_PATH_STATUS_PAUSED:
       case PSYNC_PATH_STATUS_REMOTE_FULL:
       case PSYNC_PATH_STATUS_LOCAL_FULL:
-        replay->type=11;
+        reply->type=11;
         break;
       default:
-        replay->type=13;
-        memcpy(replay->value, "No.", 4);
+        reply->type=13;
+        memcpy(reply->value, "No.", 4);
     }
   } else if ((callbacks_running)&&(request->type < (calbacks_lower_band + callbacks_size))) {
+    fprintf(stderr, "DEBUG: here 2.2\n");
     int ind = request->type - 20;
     int ret = 0;
     message *rep = NULL;
-    
+    fprintf(stderr, "DEBUG: here 2.2, request->type=%d, ind=%d\n", request->type, ind);
+
     if (callbacks[ind]) {
-      if ((ret = callbacks[ind](request->value, rep)) == 0) {
+      fprintf(stderr, "DEBUG: here 2.2.1, request->value=%s, callbacks[ind]=%#010x\n", request->value, callbacks[ind]);
+      ret = callbacks[ind](request->value, rep);
+      fprintf(stderr, "DEBUG: here 2.2.1, ret=%d\n", ret);
+      if (ret == 0) {
+        fprintf(stderr, "DEBUG: here 2.2.1.1\n");
         if (rep) {
-          psync_free(replay);
-          replay = rep;
+          fprintf(stderr, "DEBUG: here 2.2.1.1.1\n");
+          psync_free(reply);
+          reply = rep;
         }
-        else 
-        replay->type = 0;
+        else
+        reply->type = 0;
       } else {
-        replay->type = ret;
-        memcpy(replay->value, "No.", 4);
+        fprintf(stderr, "DEBUG: here 2.2.1.1.2\n");
+        reply->type = ret;
+        memcpy(reply->value, "No.", 4);
       }
     } else {
-      replay->type = 13;
-      memcpy(replay->value, "No callback with this id registered.", 37);
-      replay->length = sizeof(message)+37;
+      reply->type = 13;
+      memcpy(reply->value, "No callback with this id registered.", 37);
+      reply->length = sizeof(message)+37;
     }
   } else {
-      replay->type = 13;
-      memcpy(replay->value, "Invalid type.", 14);
-      replay->length = sizeof(message)+14;
+    fprintf(stderr, "DEBUG: here 2.3\n");
+      reply->type = 13;
+      memcpy(reply->value, "Invalid type.", 14);
+      reply->length = sizeof(message)+14;
     }
-
 }
 
 

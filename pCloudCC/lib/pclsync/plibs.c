@@ -2454,6 +2454,7 @@ static void time_format(time_t tm, unsigned long ns, char *result){
 }
 
 int psync_debug(const char *file, const char *function, int unsigned line, int unsigned level, const char *fmt, ...){
+  fprintf(stderr, "DEBUG: in %s\n", __func__);
   static const struct {
     psync_uint_t level;
     const char *name;
@@ -2467,10 +2468,12 @@ int psync_debug(const char *file, const char *function, int unsigned line, int u
   unsigned int u;
   pthread_t threadid;
 #if defined(P_OS_WINDOWS)
+  fprintf(stderr, "DEBUG: here 0\n");
   errname=strrchr(file, '\\');
   if (errname)
     file=errname+1;
 #endif
+  fprintf(stderr, "DEBUG: here 1\n");
   errname="BAD_ERROR_CODE";
   for (i=0; i<ARRAY_SIZE(debug_levels); i++)
     if (debug_levels[i].level==level){
@@ -2482,16 +2485,22 @@ int psync_debug(const char *file, const char *function, int unsigned line, int u
     if (!log)
       return 1;
   }
+  fprintf(stderr, "DEBUG: here 2\n");
   psync_nanotime(&ts);
   time_format(ts.tv_sec, ts.tv_nsec, dttime);
   threadid=pthread_self();
   memcpy(&u, &threadid, sizeof(u));
+  fprintf(stderr, "DEBUG: here 3\n");
   snprintf(format, sizeof(format), "%s %u %s %s: %s:%u (function %s): %s\n", dttime, u, psync_thread_name, errname, file, line, function, fmt);
   format[sizeof(format)-1]=0;
+  fprintf(stderr, "DEBUG: here 4\n");
   va_start(ap, fmt);
+  fprintf(stderr, "DEBUG: here 5\n");
   vfprintf(log, format, ap);
   va_end(ap);
+  fprintf(stderr, "DEBUG: here 6\n");
   fflush(log);
+  fprintf(stderr, "DEBUG: here 7\n");
   return 1;
 }
 

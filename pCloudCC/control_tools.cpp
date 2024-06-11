@@ -48,6 +48,7 @@ int stop_crypto(){
     std::cout << "Stop Crypto failed. return is " << ret<< " and message is "<<errm << std::endl;
   else
     std::cout << "Crypto Stopped. "<< std::endl;
+
   free(errm);
   return ret;
 }
