@@ -444,7 +444,7 @@ void data_event_thread(void* ptr) {
 
   debug(D_NOTICE, "Sending data event Event id: [%d] Str1: [%s], Str1: [%s], Uint1:[%lu] Uint2:[%lu]", data->eventid, data->str1, data->str2, data->uint1, data->uint2);
 
-  data_event_fptr(data->eventid, data->str1, data->str2, data->uint1, data->uint2);
+  data_event_fptr(data->eventid, (char *)data->str1, (char *)data->str2, data->uint1, data->uint2);
 
   psync_free(ptr);
 }

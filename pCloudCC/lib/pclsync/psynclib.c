@@ -2586,7 +2586,7 @@ int psync_is_folder_syncable(char*  localPath,
 
   //Check if folder is not a child of an igrnored folder
   ignorePaths = psync_setting_get_string(_PS(ignorepaths));
-  parse_os_path(ignorePaths, &folders, (char *)DELIM_SEMICOLON, 0);
+  parse_os_path((char *)ignorePaths, &folders, (char *)DELIM_SEMICOLON, 0);
 
   for (i = 0; i < folders.cnt; i++) {
     debug(D_NOTICE, "Check ignored folder: [%s]=[%s]", folders.folders[i], localPath);
@@ -2603,7 +2603,7 @@ int psync_is_folder_syncable(char*  localPath,
 psync_folder_list_t* psync_get_syncs_bytype(const char* syncType) {
   debug(D_NOTICE, "Get syncs type: [%s]", syncType);
 
-  return psync_list_get_list(syncType);
+  return psync_list_get_list((char *)syncType);
 }
 /***********************************************************************************************************************************************/
 psync_folderid_t create_bup_mach_folder(char** msgErr) {
@@ -2614,8 +2614,9 @@ psync_folderid_t create_bup_mach_folder(char** msgErr) {
 
   char  bRootFoName[64];
   char* tmpBuff;
-  int   res = 0;
+  int   res;
 
+  rootFolIdObj = NULL;
   tmpBuff = get_pc_name();
   psync_strlcpy(bRootFoName, tmpBuff, 64);
 
@@ -2644,7 +2645,7 @@ psync_folderid_t create_bup_mach_folder(char** msgErr) {
                      msgErr);
 
   if (res == 0) {
-    rootFolIdObj = psync_find_result(retData, "folderid", PARAM_NUM);
+    rootFolIdObj = (binresult *)psync_find_result(retData, "folderid", PARAM_NUM);
 
     //Store the root folder id in the local DB
     sql = psync_sql_prep_statement("REPLACE INTO setting (id, value) VALUES ('BackupRootFoId', ?)");
@@ -2653,8 +2654,11 @@ psync_folderid_t create_bup_mach_folder(char** msgErr) {
 
     free(retData);
   }
-
-  return rootFolIdObj->num;
+  if(rootFolIdObj) {
+	return rootFolIdObj->num;
+  } else {
+	return -1;
+  }
 }
 /***********************************************************************************************************************************************/
 int psync_create_backup(char*  path,
@@ -2685,6 +2689,10 @@ int psync_create_backup(char*  path,
   if (bFId == 0) {
     retryRootCrt:
     bFId = create_bup_mach_folder(errMsg);
+	if(bFId < 0) {
+	  debug(D_BUG, "error occurred in create_bup_mach_folder: rootFolIdObj was NULL");
+	  exit(255);
+	}
   }
 
   parse_os_path(path, &folders, (char *)DELIM_DIR, 1);
@@ -2728,7 +2736,7 @@ int psync_create_backup(char*  path,
   if (res == 0) {
     psync_diff_update_folder(retData);
 
-    folId = psync_find_result(retData, FOLDER_ID, PARAM_NUM);
+    folId = (binresult *)psync_find_result(retData, FOLDER_ID, PARAM_NUM);
 
     syncFId = psync_add_sync_by_folderid(path, folId->num, PSYNC_BACKUPS);
 

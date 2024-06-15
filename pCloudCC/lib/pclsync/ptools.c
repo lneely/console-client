@@ -184,6 +184,7 @@ int create_backend_event(const char*  binapi,
     }
 
     paramsLocal[mpCnt + pCnt] = (binparam)P_STR(EPARAM_KEY, keyParams);
+	free(keyParams);
   }
 
   for (i = 0; i < tpCnt; i++) {
@@ -200,7 +201,6 @@ int create_backend_event(const char*  binapi,
 
   res = do_send_command(sock, EVENT_WS, strlen(EVENT_WS), paramsLocal, tpCnt, -1, 1);
 
-  free(keyParams);
   free(paramsLocal);
   
   if (unlikely_log(!res)) {
@@ -248,6 +248,8 @@ int backend_call(const char*  binapi,
 
   if(totalParCnt > 0) {
     localParams = (binparam*)malloc((totalParCnt) * sizeof(binparam)); //Allocate size for all required parameters.
+  } else {
+	localParams = (binparam*)malloc(sizeof(binparam));
   }
 
   //Add required parameters to the structure
@@ -343,7 +345,7 @@ int backend_call(const char*  binapi,
   }
   else {
     if(strlen(payloadName) > 0) {
-      payload = psync_find_result(res, payloadName, PARAM_HASH);
+      payload = (binresult *)psync_find_result(res, payloadName, PARAM_HASH);
 
       *resData = (binresult*)malloc(payload->length * sizeof(binresult));
       memcpy(*resData, payload, (payload->length * sizeof(binresult)));
@@ -409,7 +411,7 @@ void parse_os_path(char* path, folderPath* folders, char* delim, int mode) {
   }
 
   while (1) {
-    if (path[i] != delim) {
+    if (path[i] != *delim) {
       if ((path[i] == ':') && (mode == 1)) {
         //In case we meet a ":" as in C:\ we set the name to Drive + the string before the ":"
         fName[k] = '\0';
@@ -604,6 +606,7 @@ char *get_sync_folder_by_syncid(uint64_t syncId) {
 char* get_folder_name_from_path(char* path) {
   char* folder;
 
+  folder = "";
   while (*path != 0) {
     if ((*path == '\\') || (*path == '/')) {
       folder = ++path;

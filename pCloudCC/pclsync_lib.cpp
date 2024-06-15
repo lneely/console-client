@@ -228,20 +228,24 @@ int clib::pclsync_lib::statrt_crypto (const char* pass, void * rep) {
   return lib_setup_cripto();
 }
 int clib::pclsync_lib::stop_crypto (const char* path, void * rep) {
+  int res = -1;
   fprintf(stderr, "DEBUG: in clib::pclsync_lib::%s\n", __func__);
   psync_crypto_stop();
   get_lib().crypto_on_ = false;
+  return res;
 }
 int clib::pclsync_lib::finalize (const char* path, void * rep) {
   psync_destroy();
   exit(0);
 }
+
 int clib::pclsync_lib::list_sync_folders (const char* path, void * rep) {
   psync_folder_list_t * folders = psync_get_sync_list();
-  rep =psync_malloc(sizeof(folders));
-  memcpy(rep, folders, sizeof(folders));
-
+  rep = psync_malloc(sizeof(*folders));
+  memcpy(rep, folders, sizeof(*folders));
+  return 0;
 }
+
 static const std::string client_name = "pCloud CC v3.0.0";
 int clib::pclsync_lib::init()//std::string& username, std::string& password, std::string* crypto_pass, int setup_crypto, int usesrypto_userpass)
 {

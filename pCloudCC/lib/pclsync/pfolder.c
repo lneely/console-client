@@ -731,7 +731,7 @@ pfolder_list_t *psync_list_remote_folder(psync_folderid_t folderid, psync_listty
       entry.folder.canshare=(psync_my_userid==psync_get_number(row[3]));
       entry.folder.isencrypted=(psync_get_number(row[4])&PSYNC_FOLDER_FLAG_ENCRYPTED)?1:0;
       if (parentencrypted&&psync_crypto_isstarted()){
-        tmp=psync_get_lstring(row[2], &namelen);
+        tmp=(char *)psync_get_lstring(row[2], &namelen);
         entry.name=get_decname_for_folder(folderid, tmp, namelen);
         if (!entry.name){
           debug(D_BUG, "Can't decrypt folder name for folderid: %lu, parent folfderid: %lu, cryptoerr: %d, encrypted name: %s. Skippping ...", entry.folder.folderid, folderid, psync_fsfolder_crypto_error(), tmp);

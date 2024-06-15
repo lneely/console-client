@@ -305,7 +305,7 @@ static int tls_prf_sha384( const unsigned char *secret, size_t slen,
     size_t nb;
     size_t i, j, k;
     unsigned char tmp[128];
-    unsigned char h_i[48];
+    unsigned char h_i[128];
 
     if( sizeof( tmp ) < 48 + strlen( label ) + rlen )
         return( POLARSSL_ERR_SSL_BAD_INPUT_DATA );
@@ -825,7 +825,7 @@ int ssl_derive_keys( ssl_context *ssl )
 }
 
 #if defined(POLARSSL_SSL_PROTO_SSL3)
-void ssl_calc_verify_ssl( ssl_context *ssl, unsigned char hash[36] )
+void ssl_calc_verify_ssl( ssl_context *ssl, unsigned char *hash )
 {
     md5_context md5;
     sha1_context sha1;
@@ -871,7 +871,7 @@ void ssl_calc_verify_ssl( ssl_context *ssl, unsigned char hash[36] )
 #endif /* POLARSSL_SSL_PROTO_SSL3 */
 
 #if defined(POLARSSL_SSL_PROTO_TLS1) || defined(POLARSSL_SSL_PROTO_TLS1_1)
-void ssl_calc_verify_tls( ssl_context *ssl, unsigned char hash[36] )
+void ssl_calc_verify_tls( ssl_context *ssl, unsigned char *hash )
 {
     md5_context md5;
     sha1_context sha1;
@@ -896,7 +896,7 @@ void ssl_calc_verify_tls( ssl_context *ssl, unsigned char hash[36] )
 
 #if defined(POLARSSL_SSL_PROTO_TLS1_2)
 #if defined(POLARSSL_SHA256_C)
-void ssl_calc_verify_tls_sha256( ssl_context *ssl, unsigned char hash[32] )
+void ssl_calc_verify_tls_sha256( ssl_context *ssl, unsigned char *hash )
 {
     sha256_context sha256;
 
@@ -915,7 +915,7 @@ void ssl_calc_verify_tls_sha256( ssl_context *ssl, unsigned char hash[32] )
 #endif /* POLARSSL_SHA256_C */
 
 #if defined(POLARSSL_SHA512_C)
-void ssl_calc_verify_tls_sha384( ssl_context *ssl, unsigned char hash[48] )
+void ssl_calc_verify_tls_sha384( ssl_context *ssl, unsigned char *hash )
 {
     sha512_context sha512;
 
@@ -3203,7 +3203,7 @@ static void ssl_calc_finished_tls_sha384(
     int len = 12;
     const char *sender;
     sha512_context sha512;
-    unsigned char padbuf[48];
+    unsigned char padbuf[128];
 
     ssl_session *session = ssl->session_negotiate;
     if( !session )
