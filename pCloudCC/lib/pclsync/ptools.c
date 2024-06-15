@@ -530,7 +530,7 @@ int set_be_file_dates(uint64_t fileid, time_t ctime, time_t mtime) {
     &requiredParams1,
     &optionalParams,
     &retData,
-    (char **)msgErr	// TODO: dubious cast, verify
+    (char **)msgErr
   );
 
   debug(D_NOTICE, "cTime res: [%d]", callRes);
@@ -552,7 +552,7 @@ int set_be_file_dates(uint64_t fileid, time_t ctime, time_t mtime) {
     &requiredParams,
     &optionalParams,
     &retData,
-    (char **)msgErr		// TODO: dubious cast, verify
+    (char **)msgErr
   );
 
   debug(D_NOTICE, "mTime res: [%d]", callRes);
