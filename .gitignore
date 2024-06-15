@@ -13,3 +13,5 @@
 a.out
 pcloudcc
 
+/pCloudCC/.cache/
+/pCloudCC/compile_commands.json
