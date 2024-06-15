@@ -45,7 +45,6 @@ namespace clib  = cc::clibrary;
 clib::pclsync_lib& clib::pclsync_lib::get_lib(){
   fprintf(stderr, "DEBUG: in %s\n", __func__);
   static clib::pclsync_lib g_lib;
-  fprintf(stderr, "DEBUG: here 0\n");
   return g_lib;
 }
 
@@ -231,7 +230,6 @@ int clib::pclsync_lib::statrt_crypto (const char* pass, void * rep) {
 int clib::pclsync_lib::stop_crypto (const char* path, void * rep) {
   fprintf(stderr, "DEBUG: in clib::pclsync_lib::%s\n", __func__);
   psync_crypto_stop();
-  fprintf(stderr, "DEBUG: here 0\n");
   get_lib().crypto_on_ = false;
 }
 int clib::pclsync_lib::finalize (const char* path, void * rep) {

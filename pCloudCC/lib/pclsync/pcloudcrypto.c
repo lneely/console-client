@@ -597,28 +597,20 @@ int psync_cloud_crypto_stop(){
   fprintf(stderr, "DEBUG: %s\n", __func__);
   crypto_started_un=0;
   pthread_rwlock_wrlock(&crypto_lock);
-  fprintf(stderr, "DEBUG: here 0\n");
   if (!crypto_started_l){
-    fprintf(stderr, "DEBUG: here 0.1\n");
     pthread_rwlock_unlock(&crypto_lock);
-    fprintf(stderr, "DEBUG: here 0.2\n");
     return PRINT_RETURN_CONST(PSYNC_CRYPTO_STOP_NOT_STARTED);
   }
   fprintf(stderr, "DEBUG: here 1\n");
   crypto_started_l=0;
   psync_ssl_rsa_free_public(crypto_pubkey);
-  fprintf(stderr, "DEBUG: here 2\n");
   crypto_pubkey=PSYNC_INVALID_RSA;
   psync_ssl_rsa_free_private(crypto_privkey);
-  fprintf(stderr, "DEBUG: here 3\n");
   crypto_privkey=PSYNC_INVALID_RSA;
   pthread_rwlock_unlock(&crypto_lock);
-  fprintf(stderr, "DEBUG: here 4\n");
   debug(D_NOTICE, "stopped crypto");
   psync_cloud_crypto_clean_cache();
-  fprintf(stderr, "DEBUG: here 5\n");
   psync_fs_refresh_crypto_folders();
-  fprintf(stderr, "DEBUG: here 6\n");
 #ifdef P_OS_WINDOWS
   psync_refresh_explorer_crypto_folder();
 #endif

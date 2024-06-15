@@ -94,14 +94,10 @@ void get_answer_to_request(message *request, message *reply)
 {
   fprintf(stderr, "DEBUG: in %s\n", __func__);
   psync_path_status_t stat=PSYNC_PATH_STATUS_NOT_OURS;
-  fprintf(stderr, "DEBUG: here 0\n");
   memcpy(reply->value, "Ok.", 4);
-  fprintf(stderr, "DEBUG: here 1\n");
   reply->length=sizeof(message)+4;
   debug(D_NOTICE, "Client Request type [%u] len [%lu] string: [%s]", request->type, request->length, request->value);
-  fprintf(stderr, "DEBUG: here 2\n");
   if (request->type < 20 ) {
-    fprintf(stderr, "DEBUG: here 2.1\n");
     if (overlays_running)
       stat=psync_path_status_get(request->value);
     switch (psync_path_status_get_status(stat)) {
@@ -121,27 +117,20 @@ void get_answer_to_request(message *request, message *reply)
         memcpy(reply->value, "No.", 4);
     }
   } else if ((callbacks_running)&&(request->type < (calbacks_lower_band + callbacks_size))) {
-    fprintf(stderr, "DEBUG: here 2.2\n");
     int ind = request->type - 20;
     int ret = 0;
     message *rep = NULL;
-    fprintf(stderr, "DEBUG: here 2.2, request->type=%d, ind=%d\n", request->type, ind);
 
     if (callbacks[ind]) {
-      fprintf(stderr, "DEBUG: here 2.2.1, request->value=%s, callbacks[ind]=%#010x\n", request->value, callbacks[ind]);
       ret = callbacks[ind](request->value, rep);
-      fprintf(stderr, "DEBUG: here 2.2.1, ret=%d\n", ret);
       if (ret == 0) {
-        fprintf(stderr, "DEBUG: here 2.2.1.1\n");
         if (rep) {
-          fprintf(stderr, "DEBUG: here 2.2.1.1.1\n");
           psync_free(reply);
           reply = rep;
         }
         else
         reply->type = 0;
       } else {
-        fprintf(stderr, "DEBUG: here 2.2.1.1.2\n");
         reply->type = ret;
         memcpy(reply->value, "No.", 4);
       }
@@ -151,11 +140,10 @@ void get_answer_to_request(message *request, message *reply)
       reply->length = sizeof(message)+37;
     }
   } else {
-    fprintf(stderr, "DEBUG: here 2.3\n");
-      reply->type = 13;
-      memcpy(reply->value, "Invalid type.", 14);
-      reply->length = sizeof(message)+14;
-    }
+    reply->type = 13;
+    memcpy(reply->value, "Invalid type.", 14);
+    reply->length = sizeof(message)+14;
+  }
 }
 
 
