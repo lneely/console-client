@@ -22,20 +22,20 @@
 * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/ 
+*/
 
-#include <stdio.h> 
-#include <sys/socket.h> 
-#include <sys/un.h> 
-#include <stdlib.h> 
-#include <unistd.h> 
-#include <stdint.h> 
-#include <errno.h> 
-#include <netinet/in.h> 
+#include <stdio.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <errno.h>
+#include <netinet/in.h>
 
-#include "overlay_client.h" 
-#include "debug.h" 
-#define POVERLAY_BUFSIZE 512 
+#include "overlay_client.h"
+#include "debug.h"
+#define POVERLAY_BUFSIZE 512
 
 typedef struct _message {
 uint32_t type;
@@ -64,9 +64,9 @@ int QueryState( pCloud_FileState *state, char * path) {
       *state = FileStateInProgress ;
     else if (rep == 11 )
       *state = FileStateNoSync ;
-    else 
+    else
       *state = FileStateInvalid ;
-  } else 
+  } else
     debug ( D_ERROR , "QueryState ERROR rep[%d] path[%s]" , rep, path);
   free (errm);
 return 0 ;
@@ -89,7 +89,7 @@ int SendCall( int id /*IN*/ , char * path /*IN*/ , int * ret /*OUT*/ , char ** e
   message *rep = NULL ;
 
 
-  debug ( D_NOTICE , "SenCall id[%d] path[%s]\n" , id, path);
+  debug ( D_NOTICE , "SendCall id[%d] path[%s]\n" , id, path);
 
   #if defined(P_OS_MACOS)
   if ( (fd = socket ( AF_INET , SOCK_STREAM , 0 )) == - 1 ) {
@@ -126,7 +126,7 @@ int SendCall( int id /*IN*/ , char * path /*IN*/ , int * ret /*OUT*/ , char ** e
     *ret = - 4 ;
     return - 4 ;
   }
-  #endif 
+  #endif
 
   message * mes = ( message *)sendbuf;
   memset (mes, 0 , mess_size);
@@ -184,7 +184,7 @@ int main ( int arc, char **argv ){
       printf( "File %s FileStateInProgress\n" , argv[i]);
     else if (state == FileStateInvalid)
       printf( "File %s FileStateInvalid\n" , argv[i]);
-    else 
+    else
       printf( "Not valid state returned for file %s\n" , argv[i]);
     SendCall( 20 , argv[i], &j, &errm);
     printf( "Call 20 returned %d msg %s \n" , j, errm);

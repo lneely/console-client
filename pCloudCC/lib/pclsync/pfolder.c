@@ -713,7 +713,7 @@ pfolder_list_t *psync_list_remote_folder(psync_folderid_t folderid, psync_listty
       parentencrypted=(psync_get_number(row[0])&PSYNC_FOLDER_FLAG_ENCRYPTED)?1:0;
     }
     else{
-      debug(D_ERROR, "Can't find folder with id %I64u", folderid);
+      debug(D_ERROR, "Can't find folder with id %Ilu", folderid);
       psync_sql_free_result(res);
       return NULL;
     }
@@ -731,10 +731,10 @@ pfolder_list_t *psync_list_remote_folder(psync_folderid_t folderid, psync_listty
       entry.folder.canshare=(psync_my_userid==psync_get_number(row[3]));
       entry.folder.isencrypted=(psync_get_number(row[4])&PSYNC_FOLDER_FLAG_ENCRYPTED)?1:0;
       if (parentencrypted&&psync_crypto_isstarted()){
-        tmp=psync_get_lstring(row[2], &namelen);
+        tmp=(char *)psync_get_lstring(row[2], &namelen);
         entry.name=get_decname_for_folder(folderid, tmp, namelen);
         if (!entry.name){
-          debug(D_BUG, "Can't decrypt folder name for folderid: %I64u, parent folfderid: %I64u, cryptoerr: %d, encrypted name: %s. Skippping ...", entry.folder.folderid, folderid, psync_fsfolder_crypto_error(), tmp);
+          debug(D_BUG, "Can't decrypt folder name for folderid: %lu, parent folfderid: %lu, cryptoerr: %d, encrypted name: %s. Skippping ...", entry.folder.folderid, folderid, psync_fsfolder_crypto_error(), tmp);
           continue;
         }
         entry.namelen=strlen(entry.name);
@@ -891,17 +891,16 @@ psync_folder_list_t *psync_list_get_list(char* syncTypes){
   uint32_t alloced, lastfolder, i;
 
   char sql[1024];
-  int sqlLen;
 
   folders=NULL;
   alloced=lastfolder=0;
   strlens=0;
 
   if (strlen(syncTypes) > 0) {
-    sqlLen = psync_slprintf(sql, 1024, "SELECT id, folderid, localpath, synctype FROM syncfolder WHERE folderid IS NOT NULL AND synctype IN (%s)", syncTypes);
+    psync_slprintf(sql, 1024, "SELECT id, folderid, localpath, synctype FROM syncfolder WHERE folderid IS NOT NULL AND synctype IN (%s)", syncTypes);
   }
   else {
-    sqlLen = psync_slprintf(sql, 1024, "SELECT id, folderid, localpath, synctype FROM syncfolder WHERE folderid IS NOT NULL");
+    psync_slprintf(sql, 1024, "SELECT id, folderid, localpath, synctype FROM syncfolder WHERE folderid IS NOT NULL");
   }
 
   res = psync_sql_query_rdlock(sql);

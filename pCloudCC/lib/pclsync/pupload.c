@@ -377,7 +377,7 @@ static int task_renameremotefolder(psync_folderid_t folderid, psync_folderid_t n
     */
     err_struct.newName = strdup(newname);
     err_struct.err     = result;
-    err_struct.err_msg = psync_find_result(res, "error", PARAM_STR)->str;
+    err_struct.err_msg = (char *)psync_find_result(res, "error", PARAM_STR)->str;
     err_struct.folderid = folderid;
     err_struct.newparentfolderid = newparentfolderid;
 

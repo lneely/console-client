@@ -27,7 +27,6 @@
 
 #include "plibs.h"
 #include "pcrypto.h"
-#include "psettings.h"
 #include "pmemlock.h"
 #include <string.h>
 #include <stddef.h>

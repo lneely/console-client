@@ -202,6 +202,7 @@ psync_folderid_t psync_create_local_folder_in_db(psync_syncid_t syncid, psync_fo
   }
   else{
     lfolderid=0;
+	dbfolderid=0;
     debug(D_ERROR, "local folder %s not found in the database", name);
   }
   psync_sql_free_result(res);

@@ -22,20 +22,19 @@
 * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/ 
+*/
 
-#include <stdio.h> 
-#include <sys/socket.h> 
-#include <sys/un.h> 
-#include <stdlib.h> 
-#include <unistd.h> 
-#include <stdint.h> 
-#include <errno.h> 
-#include <netinet/in.h> 
+#include <stdio.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <netinet/in.h>
 
-#include "overlay_client.h" 
-#include "debug.h" 
-#define POVERLAY_BUFSIZE 512 
+#include "overlay_client.h"
+#include "debug.h"
+#define POVERLAY_BUFSIZE 512
 
 typedef struct _message {
 uint32_t type;
@@ -43,22 +42,23 @@ uint64_t length;
 char value[];
 } message;
 
-static void read_x_bytes(int socket, unsigned int x, void * buffer){
+static int read_x_bytes(int socket, unsigned int x, char * buffer){
   int bytesRead = 0;
   int result;
   while (bytesRead < x) {
     result = read(socket, buffer + bytesRead, x - bytesRead);
     if (result < 1 ) {
-      return;
+      return result;
     }
     bytesRead += result;
   }
+  return result;
 }
 
 #if defined(P_OS_MACOS)
 uint32_t clport = 8989 ;
 #else
-char *clsoc = "/tmp/pcloud_unix_soc.sock" ;
+const char *clsoc = "/tmp/pcloud_unix_soc.sock" ;
 #endif
 
 int QueryState( pCloud_FileState *state, char * path) {
@@ -74,14 +74,15 @@ int QueryState( pCloud_FileState *state, char * path) {
       *state = FileStateInProgress ;
     else if (rep == 11 )
       *state = FileStateNoSync ;
-    else 
+    else
       *state = FileStateInvalid ;
-  } else 
+  } else
     debug ( D_ERROR , "QueryState ERROR rep[%d] path[%s]" , rep, path);
   free (errm);
 return 0 ;
 }
-int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , void * out /*OUT*/ ) {
+
+int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , char **out /*OUT*/ ) {
   #if defined(P_OS_MACOS)
   struct sockaddr_in addr;
   #else
@@ -100,12 +101,11 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , void
   message *rep = NULL ;
 
 
-  debug ( D_NOTICE , "SenCall id[%d] path[%s]\n" , id, path);
+  debug ( D_NOTICE , "SendCall id[%d] path[%s]\n" , id, path);
 
   #if defined(P_OS_MACOS)
   if ( (fd = socket ( AF_INET , SOCK_STREAM , 0 )) == - 1 ) {
-    if (errm)
-      *errm = strndup ( "Unable to create INET socket" , 28 );
+    *out = strndup ( "Unable to create INET socket" , 28 );
     *ret = - 1 ;
     return - 1 ;
   }
@@ -115,15 +115,13 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , void
   addr. sin_addr . s_addr = htonl ( INADDR_LOOPBACK );
   addr. sin_port = htons ( clport );
   if ( connect (fd, ( struct sockaddr *)&addr, sizeof ( struct sockaddr )) == - 1 ) {
-    if (errm)
-      *errm = strndup ( "Unable to connect to INET socket" , 32 );
+    *out = strndup ( "Unable to connect to INET socket" , 32 );
     *ret = - 2 ;
     return - 2 ;
   }
   #else
   if ( (fd = socket(AF_UNIX, SOCK_STREAM, 0 )) == - 1 ) {
-    if (out)
-      out = (void *)strndup( "Unable to create UNIX socket" , 27 );
+    *out = strndup( "Unable to create UNIX socket" , 27 );
     *ret = - 3 ;
     return - 3 ;
    }
@@ -132,12 +130,11 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , void
   strncpy(addr.sun_path, clsoc, sizeof (addr.sun_path)- 1 );
 
   if (connect(fd, ( struct sockaddr*)&addr,SUN_LEN(&addr)) == - 1 ) {
-    if (out)
-     out = (void *)strndup( "Unable to connect to UNIX socket" , 32 );
+    *out = strndup( "Unable to connect to UNIX socket" , 32 );
     *ret = - 4 ;
     return - 4 ;
   }
-  #endif 
+  #endif
 
   message * mes = ( message *)sendbuf;
   memset (mes, 0 , mess_size);
@@ -151,16 +148,16 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , void
   }
   debug ( D_NOTICE , "QueryState bytes send[%d]\n" , bytes_writen);
   if (bytes_writen != mes-> length ) {
-    if (out)
-      out = strndup ( "Communication error" , 19 );
+    *out = strndup ( "Communication error" , 19 );
     close(fd);
     *ret = - 5 ;
     return - 5 ;
   }
+
+
+
+  bufflen = read_x_bytes(fd, 4, buf);
   
-  
-  
-  read_x_bytes(fd, 4, &bufflen);
   if (bufflen <= 0)
   {
     debug ( D_NOTICE , "Message size could not be read![%d]\n" , bufflen);
@@ -171,14 +168,14 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , void
   rep->length = bufflen;
 
   read_x_bytes(fd, bufflen - 4, buf + 4);
-  
+
 
   *ret = rep-> type ;
-  if (out)
-    out = strndup (rep-> value , rep-> length - sizeof ( message ));
+  *out = strndup (rep-> value , rep-> length - sizeof ( message ));
 
   close(fd);
 
+  
   return 0 ;
 }
 
@@ -198,7 +195,7 @@ int main ( int arc, char **argv ){
       printf( "File %s FileStateInProgress\n" , argv[i]);
     else if (state == FileStateInvalid)
       printf( "File %s FileStateInvalid\n" , argv[i]);
-    else 
+    else
       printf( "Not valid state returned for file %s\n" , argv[i]);
     SendCall( 20 , argv[i], &j, &errm);
     printf( "Call 20 returned %d msg %s \n" , j, errm);
@@ -206,7 +203,7 @@ int main ( int arc, char **argv ){
     printf( "Call 21 returned %d msg %s \n" , j, errm);
     SendCall( 22 , argv[i], &j, &errm);
     printf( "Call 22 returned %d msg %s \n" , j, errm);
-    
+
     SendCall( 23 , argv[i], &j, &errm);
     printf( "Call 22 returned %d msg %s \n" , j, errm);
   }

@@ -15,3 +15,7 @@
 /pCloudCC/arch/*.gz
 /pCloudCC/install_manifest.txt
 /pCloudCC/*.zst
+a.out
+pcloudcc
+/pCloudCC/.cache/
+/pCloudCC/compile_commands.json

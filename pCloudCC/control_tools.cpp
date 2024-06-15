@@ -29,34 +29,39 @@ enum command_ids_ {
   STOPSYNC
 };
 
-  
+
 int start_crypto(const char * pass) {
   int ret;
   char* errm;
   if (SendCall(STARTCRYPTO, pass, &ret, &errm))
     std::cout << "Start Crypto failed. return is " << ret<< " and message is "<<errm << std::endl;
-  else 
+  else
     std::cout << "Crypto started. "<< std::endl;
-  free(errm);  
+
+  free(errm);
+  return ret;
 }
 int stop_crypto(){
   int ret;
   char* errm;
   if (SendCall(STOPCRYPTO, "", &ret, &errm))
     std::cout << "Stop Crypto failed. return is " << ret<< " and message is "<<errm << std::endl;
-  else 
+  else
     std::cout << "Crypto Stopped. "<< std::endl;
-  free(errm);  
+
+  free(errm);
+  return ret;
 }
 int finalize(){
    int ret;
   char* errm;
   if (SendCall(FINALIZE, "", &ret, &errm))
     std::cout << "Finalize failed. return is " << ret<< " and message is "<<errm << std::endl;
-  else 
+  else
     std::cout << "Exiting ..."<< std::endl;
-  
-  free(errm);  
+
+  free(errm);
+  return ret;
 }
 void process_commands()
 {
@@ -72,7 +77,7 @@ void process_commands()
       start_crypto(line.c_str() + 12);
     else if (!line.compare("q") || !line.compare("quit"))
       break;
-    
+
     std::cout<< "> " ;
   }
 }
@@ -81,35 +86,35 @@ int daemonize(bool do_commands) {
   pid_t pid, sid;
 
   pid = fork();
-  if (pid < 0) 
+  if (pid < 0)
     exit(EXIT_FAILURE);
   if (pid > 0) {
     std::cout << "Daemon process created. Process id is: " << pid << std::endl;
     if (do_commands) {
       process_commands();
     }
-    else 
+    else
       std::cout  << "sudo kill -9 "<<pid<< std::endl<<" To stop it."<< std::endl;
     exit(EXIT_SUCCESS);
-  }  
+  }
   umask(0);
-  /* Open any logs here */        
+  /* Open any logs here */
   sid = setsid();
   if (sid < 0)
     exit(EXIT_FAILURE);
-  
+
   if ((chdir("/")) < 0)
     exit(EXIT_FAILURE);
   close(STDIN_FILENO);
   close(STDOUT_FILENO);
   close(STDERR_FILENO);
-  
+
   if (console_client::clibrary::pclsync_lib::get_lib().init())
      exit(EXIT_FAILURE);
   while (1) {
     sleep(10);
   }
-  
+
 }
-  
+
 }

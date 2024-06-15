@@ -46,12 +46,12 @@ void overlay_main_loop()
   struct sockaddr_in addr;
   int fd,cl;
   const int enable = 1;
-  
+
   if ( (fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
     //debug(D_NOTICE, "TCP/IP socket error failed to create socket on port %u", (unsigned int)myport);
     return;
   }
-  
+
   memset(&addr, 0, sizeof(addr));
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
@@ -61,7 +61,7 @@ void overlay_main_loop()
     debug(D_ERROR,"setsockopt(SO_REUSEADDR) failed");
     return;
   }
-  
+
   if (bind(fd, (struct sockaddr*)&addr,  sizeof(addr)) == -1) {
     debug(D_ERROR,"TCP/IP socket bind error");
     return;
@@ -81,7 +81,7 @@ void overlay_main_loop()
       "Pipe request handle routine",
       instance_thread,    // thread proc
       (LPVOID)&cl     // thread parameter
-      ); 
+      );
   }
 
   return;
@@ -91,16 +91,16 @@ void instance_thread(void* lpvParam)
 {
   int *cl, rc;
   char  chbuf[POVERLAY_BUFSIZE];
-  message* request = NULL; 
+  message* request = NULL;
   char * curbuf = &chbuf[0];
   int bytes_read = 0;
   message* reply = (message*)psync_malloc(POVERLAY_BUFSIZE);
 
   memset(reply, 0, POVERLAY_BUFSIZE);
   memset(chbuf, 0, POVERLAY_BUFSIZE);
-  
+
   cl = (int *)lpvParam;
-  
+
   while ( (rc=read(*cl,curbuf,(POVERLAY_BUFSIZE - bytes_read))) > 0) {
     bytes_read += rc;
     //debug(D_NOTICE, "Read %u bytes: %u %s", bytes_read, rc, curbuf );
@@ -122,12 +122,11 @@ void instance_thread(void* lpvParam)
   }
   request = (message *)chbuf;
   if (request) {
-  get_answer_to_request(request, reply);
+    get_answer_to_request(request, reply);
     if (reply ) {
       rc = write(*cl,reply,reply->length);
       if (rc != reply->length)
         debug(D_ERROR,"TCP/IP  socket reply not sent.");
-    
     }
   }
   if (cl) {
