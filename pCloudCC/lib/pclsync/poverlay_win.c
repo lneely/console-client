@@ -124,7 +124,6 @@ void overlay_main_loop(VOID)
 
 void instance_thread(LPVOID lpvParam)
 {
-  fprintf(stderr, "DEBUG: in %s\n", __func__);
   DWORD cbBytesRead = 0, cbWritten = 0;
   BOOL fSuccess = FALSE;
   HANDLE hPipe = NULL;

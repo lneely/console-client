@@ -1179,7 +1179,6 @@ static void connect_res_callback(void *h, void *ptr){
 }
 
 static void resolve_callback(void *h, void *ptr){
-  fprintf(stderr, "DEBUG: in %s\n", __func__);
   resolve_host_port *hp;
   struct addrinfo *res;
   struct addrinfo hints;
@@ -3789,7 +3788,6 @@ void *psync_mmap_anon_safe(size_t size){
 }
 
 int psync_munmap_anon(void *ptr, size_t size){
-  fprintf(stderr, "DEBUG: in %s\n", __func__);
 #if defined(PSYNC_MAP_ANONYMOUS)
   return munmap(ptr, size);
 #elif defined(P_OS_WINDOWS)

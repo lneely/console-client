@@ -177,7 +177,6 @@ void psync_set_os_string(const char *str){
 }
 
 static void psync_stop_crypto_on_sleep(){
-  fprintf(stderr, "DEBUG: in %s\n", __func__);
   if (psync_setting_get_bool(_PS(sleepstopcrypto)) && psync_crypto_isstarted()){
     psync_cloud_crypto_stop();
     debug(D_NOTICE, "stopped crypto due to sleep");
@@ -2043,7 +2042,6 @@ int psync_crypto_start(const char *password){
 }
 
 int psync_crypto_stop(){
-  fprintf(stderr, "DEBUG: %s\n", __func__);
   return psync_cloud_crypto_stop();
 }
 

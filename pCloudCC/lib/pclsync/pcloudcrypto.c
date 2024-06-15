@@ -598,14 +598,12 @@ static void psync_fs_refresh_crypto_folders(){
 }
 
 int psync_cloud_crypto_stop(){
-  fprintf(stderr, "DEBUG: %s\n", __func__);
   crypto_started_un=0;
   pthread_rwlock_wrlock(&crypto_lock);
   if (!crypto_started_l){
     pthread_rwlock_unlock(&crypto_lock);
     return PRINT_RETURN_CONST(PSYNC_CRYPTO_STOP_NOT_STARTED);
   }
-  fprintf(stderr, "DEBUG: here 1\n");
   crypto_started_l=0;
   psync_ssl_rsa_free_public(crypto_pubkey);
   crypto_pubkey=PSYNC_INVALID_RSA;

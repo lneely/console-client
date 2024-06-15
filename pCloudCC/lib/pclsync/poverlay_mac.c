@@ -96,8 +96,6 @@ void instance_thread(void* lpvParam)
   int bytes_read = 0;
   message* reply = (message*)psync_malloc(POVERLAY_BUFSIZE);
 
-  fprintf(stderr, "DEBUG: in %s\n", __func__);
-
   memset(reply, 0, POVERLAY_BUFSIZE);
   memset(chbuf, 0, POVERLAY_BUFSIZE);
 

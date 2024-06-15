@@ -92,7 +92,6 @@ void psync_start_overlay_callbacks(){
 
 void get_answer_to_request(message *request, message *reply)
 {
-  fprintf(stderr, "DEBUG: in %s\n", __func__);
   psync_path_status_t stat=PSYNC_PATH_STATUS_NOT_OURS;
   memcpy(reply->value, "Ok.", 4);
   reply->length=sizeof(message)+4;

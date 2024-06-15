@@ -43,7 +43,6 @@ namespace cc  = console_client;
 namespace clib  = cc::clibrary;
 
 clib::pclsync_lib& clib::pclsync_lib::get_lib(){
-  fprintf(stderr, "DEBUG: in %s\n", __func__);
   static clib::pclsync_lib g_lib;
   return g_lib;
 }
@@ -229,7 +228,6 @@ int clib::pclsync_lib::statrt_crypto (const char* pass, void * rep) {
 }
 int clib::pclsync_lib::stop_crypto (const char* path, void * rep) {
   int res = -1;
-  fprintf(stderr, "DEBUG: in clib::pclsync_lib::%s\n", __func__);
   psync_crypto_stop();
   get_lib().crypto_on_ = false;
   return res;
