@@ -30,7 +30,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdint.h>
-#include <errno.h>
 #include <netinet/in.h>
 
 #include "overlay_client.h"
@@ -43,22 +42,23 @@ uint64_t length;
 char value[];
 } message;
 
-static void read_x_bytes(int socket, unsigned int x, void * buffer){
+static int read_x_bytes(int socket, unsigned int x, char * buffer){
   int bytesRead = 0;
   int result;
   while (bytesRead < x) {
     result = read(socket, buffer + bytesRead, x - bytesRead);
     if (result < 1 ) {
-      return;
+      return result;
     }
     bytesRead += result;
   }
+  return result;
 }
 
 #if defined(P_OS_MACOS)
 uint32_t clport = 8989 ;
 #else
-char *clsoc = "/tmp/pcloud_unix_soc.sock" ;
+const char *clsoc = "/tmp/pcloud_unix_soc.sock" ;
 #endif
 
 int QueryState( pCloud_FileState *state, char * path) {
@@ -121,7 +121,7 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , char
   }
   #else
   if ( (fd = socket(AF_UNIX, SOCK_STREAM, 0 )) == - 1 ) {
-    *out = (void *)strndup( "Unable to create UNIX socket" , 27 );
+    *out = strndup( "Unable to create UNIX socket" , 27 );
     *ret = - 3 ;
     return - 3 ;
    }
@@ -130,7 +130,7 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , char
   strncpy(addr.sun_path, clsoc, sizeof (addr.sun_path)- 1 );
 
   if (connect(fd, ( struct sockaddr*)&addr,SUN_LEN(&addr)) == - 1 ) {
-    *out = (void *)strndup( "Unable to connect to UNIX socket" , 32 );
+    *out = strndup( "Unable to connect to UNIX socket" , 32 );
     *ret = - 4 ;
     return - 4 ;
   }
@@ -156,7 +156,8 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , char
 
 
 
-  read_x_bytes(fd, 4, &bufflen);
+  bufflen = read_x_bytes(fd, 4, buf);
+  
   if (bufflen <= 0)
   {
     debug ( D_NOTICE , "Message size could not be read![%d]\n" , bufflen);
@@ -174,6 +175,7 @@ int SendCall( int id /*IN*/ ,const char * path /*IN*/ , int * ret /*OUT*/ , char
 
   close(fd);
 
+  
   return 0 ;
 }
 
