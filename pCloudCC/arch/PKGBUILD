@@ -15,15 +15,7 @@ sha256sums=('52969a71bad79cd5946fc3c656abbe5238affda8c9c627d790f2049ff47a2fec')
 
 
 build() {
-    pushd "console-client-$pkgver/pCloudCC"
-    pushd lib/pclsync
-    make fs
-    popd
-    pushd lib/mbedtls
-    cmake .
-    make
-    popd
-    cmake .
+    cd "console-client-$pkgver"
     make
 }
 
